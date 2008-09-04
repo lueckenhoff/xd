@@ -1,15 +1,16 @@
 .\" bruce_lueckenhoff@yahoo.com 
-.TH pps 1 "September, 2008" "0.1" "bruce_lueckenhoff@yahoo.com software tools"
+.TH xd 1 "September, 2008" "0.1" "bruce_lueckenhoff@yahoo.com software tools"
 .SH NAME
-pps \- tell how many packets per second on a given port
+xd \- hex dump
 .SH SYNOPSIS
-.B pps
-.I port
+.B xd
+.I filename
 .br
 .SH DESCRIPTION
-.B pps
-Once a second, prints the exponentially weighted moving average
-packets per second received on the given UDP port.
+.B xd
+Dumps the contents of the given file or files to standard output, both
+in hexadecimal, and as ASCII. Unprintable characters are replaced with a
+"." character.
 \" .SH OPTIONS
 \" None.
 \" .SH FILES
@@ -19,10 +20,8 @@ packets per second received on the given UDP port.
 \" .SH DIAGNOSTICS
 \" None.
 .SH BUGS
-Limited to UDP. Only gives packets per second (as opposed to packets per second 
-.B and
-bits per second)
+None so far :^)
 .SH AUTHOR
 send bugs and comments to bruce_lueckenhoff@yahoo.com
-\" .SH "SEE ALSO"
-\" N/A
+.SH "SEE ALSO"
+.BR od (1),
