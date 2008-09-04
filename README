@@ -1,2 +1,26 @@
-Tells how a constantly-updated, moving average of the packets per second
-received on the specified UDP (User Datagram Protocol) on the given port.
+xd - By Bruce Lueckenhoff
+======================================================
+
+xd is a simple command-line hex dump program. It lists 16 bytes per line,
+in hex and in ASCII. (unprintable characters are simply shown as ".")
+
+
+
+Usage
+------------------------------------------------------
+
+It can handle one or multiple files as arguments.
+If no arguments are given, it reads from STDIN.
+
+
+
+Credits
+------------------------------------------------------
+
+Created by: Bruce Lueckenhoff
+Contributors: YOUR NAME HERE ?
+
+I'd love to hear about any bugs/improvements/patches
+that you may have and will always credit people where
+appropriate. Thanks.
+
