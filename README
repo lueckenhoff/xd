@@ -1,0 +1,2 @@
+Tells how a constantly-updated, moving average of the packets per second
+received on the specified UDP (User Datagram Protocol) on the given port.

@@ -1,0 +1,28 @@
+.\" bruce_lueckenhoff@yahoo.com 
+.TH pps 1 "September, 2008" "0.1" "bruce_lueckenhoff@yahoo.com software tools"
+.SH NAME
+pps \- tell how many packets per second on a given port
+.SH SYNOPSIS
+.B pps
+.I port
+.br
+.SH DESCRIPTION
+.B pps
+Once a second, prints the exponentially weighted moving average
+packets per second received on the given UDP port.
+\" .SH OPTIONS
+\" None.
+\" .SH FILES
+\" None.
+\" .SH ENVIRONMENT
+\" None.
+\" .SH DIAGNOSTICS
+\" None.
+.SH BUGS
+Limited to UDP. Only gives packets per second (as opposed to packets per second 
+.B and
+bits per second)
+.SH AUTHOR
+send bugs and comments to bruce_lueckenhoff@yahoo.com
+\" .SH "SEE ALSO"
+\" N/A
