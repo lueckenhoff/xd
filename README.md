@@ -19,7 +19,6 @@ Sample output below comes from running xd on a binary file
 2. repeated lines are compressed (as in offset 2c0--400 below)
 3. for big files, piping xd output to less, or head, or tail is advisable.
 
----
 
     $ xd chrome.exe
     000000 4d5a 9000 0300 0000 0400 0000 ffff 0000    MZ..............
