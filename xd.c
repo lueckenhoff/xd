@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <errno.h>
@@ -18,153 +19,143 @@
 #define LINE_SIZE	16
 #define CHUNK		256
 
-char the_prog_name[80];
-void
-setprogname (char *nam)
+struct context {
+    unsigned int 	offset;
+    int                 ina_dup;
+    unsigned char *	buf;
+    unsigned char *	old_buf;
+};
+
+void print_full_line (unsigned int offset, unsigned char * buf)
 {
-    bzero (the_prog_name, sizeof (the_prog_name));
-    strncpy (the_prog_name, nam, sizeof(the_prog_name) - 2);
+    printf("%08x"
+           " %02x%02x %02x%02x %02x%02x %02x%02x"
+           " %02x%02x %02x%02x %02x%02x %02x%02x"
+           "   %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n"
+           , offset
+           , buf[0],  buf[1],  buf[2],  buf[3]
+           , buf[4],  buf[5],  buf[6],  buf[7]
+           , buf[8],  buf[9],  buf[10], buf[11]
+           , buf[12], buf[13], buf[14], buf[15]
+           , isprint(buf[0]) ? buf[0] : '.'
+           , isprint(buf[1]) ? buf[1] : '.'
+           , isprint(buf[2]) ? buf[2] : '.'
+           , isprint(buf[3]) ? buf[3] : '.'
+           , isprint(buf[4]) ? buf[4] : '.'
+           , isprint(buf[5]) ? buf[5] : '.'
+           , isprint(buf[6]) ? buf[6] : '.'
+           , isprint(buf[7]) ? buf[7] : '.'
+           , isprint(buf[8]) ? buf[8] : '.'
+           , isprint(buf[9]) ? buf[9] : '.'
+           , isprint(buf[10]) ? buf[10] : '.'
+           , isprint(buf[11]) ? buf[11] : '.'
+           , isprint(buf[12]) ? buf[12] : '.'
+           , isprint(buf[13]) ? buf[13] : '.'
+           , isprint(buf[14]) ? buf[14] : '.'
+           , isprint(buf[15]) ? buf[15] : '.'
+          );
 }
 
-const char *
-progname (void)
-{
-    return the_prog_name;
-}
 
-int
-min (int x, int y)
+void print_partial_line (unsigned int offset, unsigned char * buf, int n_r)
 {
-    if (x < y)
-	return x;
-    else
-	return y;
-}
+    int                 i;
 
-void
-dump_line (unsigned char *old_buf, unsigned char *buf, int n_r, int *offset,
-    int *ina_dup)
-{
-    int		 	 i;
-
-    if ((*offset > 0) && (0 == bcmp (old_buf, buf, LINE_SIZE)))
-    {
-	if (0 == *ina_dup)
-	{
-	    *ina_dup = 1;
-	    printf ("*\n");
-	}
+    printf("%08x ", offset);
+    for (i = 0; i < LINE_SIZE; i++) {
+        if (i < n_r) {
+            printf("%02x", buf[i]);
+        } else {
+            fputs("  ", stdout);
+        }
+        if (1 == (i & 1)) {
+            putchar(' ');
+        }
     }
-    else 
-    {
-	if (1 == *ina_dup)
-	{
-		*ina_dup = 0;
-	}
-
-	{
-	    printf ("%06x ", *offset);
-	    for (i = 0; i < LINE_SIZE; i++)
-	    {
-		if (i < n_r)
-		{
-		    printf ("%02x", buf[i]);
-		}
-		else
-		{
-		    printf ("  ");
-		}
-		if (i % 2)
-		{
-		    printf (" ");
-		}
-	    }
-	    printf ("   ");
-	    for (i = 0; i < n_r; i++)
-	    {
-		if (isprint (buf[i]))
-		{
-		    printf ("%c", buf[i]);
-		}
-		else
-		{
-		    printf (".");
-		}
-	    }
-	    printf ("\n");
-	}
+    fputs("  ", stdout);
+    for (i = 0; i < n_r; i++) {
+        if (isprint(buf[i])) {
+            putchar(buf[i]);
+        } else {
+            putchar('.');
+        }
     }
-    *offset += n_r;
+    putchar('\n');
 }
 
-void
-hexdump_fd (int in_fd)
+
+void dump_full_line (struct context * ctx)
 {
-    int		 	 n_r;
-    unsigned char	*buf;
-    unsigned char	 old_buf[LINE_SIZE];
-    unsigned char	 bigbuf[CHUNK * LINE_SIZE];
-    int		 	 offset;
-    int		 	 ina_dup;
-
-    offset = 0;
-    ina_dup = 0;
-
-    while ((n_r = read (in_fd, bigbuf, CHUNK * LINE_SIZE)) > 0)
-    {
-	buf = bigbuf;
-	while (n_r > 0)
-	{
-	    dump_line (old_buf, buf, min (LINE_SIZE, n_r), &offset, &ina_dup);
-	    bcopy (buf, old_buf, LINE_SIZE);
-	    buf += LINE_SIZE;
-	    n_r -= LINE_SIZE;
+    if ((NULL == ctx->old_buf) || memcmp(ctx->old_buf, ctx->buf, LINE_SIZE)) {
+	if (1 == ctx->ina_dup) {
+//            print_full_line(ctx->offset - LINE_SIZE, ctx->old_buf);
+	    ctx->ina_dup = 0;
+	}
+        print_full_line(ctx->offset, ctx->buf);
+    } else {
+	if (0 == ctx->ina_dup) {
+	    ctx->ina_dup = 1;
+            fputs("*\n", stdout);
 	}
     }
 }
 
-int
-hexdump_file (char *filename)
+
+void hexdump_fd (int in_fd)
+{
+    int		 	n_r;
+    int		 	nbytes;
+    struct context      ctx;
+    unsigned char	bigbuf[CHUNK * LINE_SIZE];
+
+    ctx.offset  = 0;
+    ctx.ina_dup = 0;
+    while ((n_r = read(in_fd, bigbuf, CHUNK * LINE_SIZE)) > 0) {
+        nbytes      = n_r;
+	ctx.buf     = bigbuf;
+        ctx.old_buf = NULL;
+	while (nbytes >= LINE_SIZE) {
+	    dump_full_line(&ctx);
+            ctx.old_buf  = ctx.buf;
+            ctx.offset += LINE_SIZE;
+	    ctx.buf    += LINE_SIZE;
+	    nbytes     -= LINE_SIZE;
+        }
+    }
+    if (nbytes > 0) {
+        print_partial_line(ctx.offset, ctx.buf, nbytes);
+    }
+}
+
+
+void hexdump_file (char * filename)
 {
     int		in_fd;
-
-    in_fd = open (filename, O_RDONLY);
-    if (-1 == in_fd)
-    {
-	char tmpstr[80];
-	sprintf (tmpstr, "%s: cannot open %s", progname (), filename);
-	perror (tmpstr);
-	return -1;
+    
+    in_fd = open(filename, O_RDONLY);
+    if (in_fd < 0) {
+        printf("open failed %s!\n", strerror(errno));
+        exit(-1);
     }
-    hexdump_fd (in_fd);
-    close (in_fd);
-    return 0;
+    hexdump_fd(in_fd);
+    close(in_fd);
 }
 
-int
-main (int argc, char *argv[])
+
+int main (int argc, char *argv[])
 {
-    int		 i;
+    int		        ix;
 
-    if (1 == argc)
-    {
-	hexdump_fd (0);
-	return 0;
+    if (2 == argc) {                            /* dump a single file */
+        hexdump_file(argv[1]); 
+    } else if (argc > 2) {                      /* dump multiple files */
+        for (ix = 1; ix < argc; ix++) {
+            char *  filename = argv[ix];
+            printf("::::::::::::::\n%s\n::::::::::::::\n", filename);
+            hexdump_file(filename);
+        }
+    } else {                                    /* just dump standard input */
+	hexdump_fd(0);
     }
-
-    setprogname ("hd");
-    for (i = 1; i < argc; i++)
-    {
-	char	*filename = argv[i];
-
-	if (argc > 2)
-	{
-	    printf ("::::::::::::::\n%s\n::::::::::::::\n", filename);
-	}
-	if (0 != hexdump_file (filename))
-	{
-	    return -1;
-	}
-    }
-    return 0;
+    exit(EXIT_SUCCESS);
 }
