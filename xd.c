@@ -116,7 +116,7 @@ void hexdump_fd (int in_fd)
         ctx.old_buf = NULL;
 	while (nbytes >= LINE_SIZE) {
 	    dump_full_line(&ctx);
-            ctx.old_buf  = ctx.buf;
+            ctx.old_buf = ctx.buf;
             ctx.offset += LINE_SIZE;
 	    ctx.buf    += LINE_SIZE;
 	    nbytes     -= LINE_SIZE;
@@ -135,7 +135,7 @@ void hexdump_file (char * filename)
     in_fd = open(filename, O_RDONLY);
     if (in_fd < 0) {
         printf("open failed %s!\n", strerror(errno));
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
     hexdump_fd(in_fd);
     close(in_fd);
