@@ -1,6 +1,8 @@
 xd - hex dumper
 ===============
 
+[![Build Status](https://travis-ci.org/lueckenhoff/xd.svg?branch=master)](https://travis-ci.org/lueckenhoff/xd)
+
 **xd** is a simple command-line hex dump program. It lists 16 bytes per line,
 in hex and in ASCII. (unprintable characters are simply shown as ".")
 
