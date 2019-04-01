@@ -1,9 +1,4 @@
 language: c
-matrix:
-    include:
-        - os: linux
-          dist: trusty
-        - os: osx
 
 script:
     - ./configure
