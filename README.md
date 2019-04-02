@@ -1,15 +1,11 @@
-xd - hex dumper
-===============
-
-[![Build Status](https://travis-ci.org/lueckenhoff/xd.svg?branch=master)](https://travis-ci.org/lueckenhoff/xd)
+# xd - hex dumper [![Build Status](https://travis-ci.org/lueckenhoff/xd.svg?branch=master)](https://travis-ci.org/lueckenhoff/xd)
 
 **xd** is a simple command-line hex dump program. It lists 16 bytes per line,
 in hex and in ASCII. (unprintable characters are simply shown as ".")
 
 
 
-Usage
------
+# Usage
 
 It can handle one or multiple files as arguments.
 If no arguments are given, it reads from STDIN.
@@ -17,9 +13,9 @@ If no arguments are given, it reads from STDIN.
 Sample output below comes from running xd on a binary file
 (the Google Chrome browser .EXE file). A couple of points:
 
-1. offsets are given in hex
-2. repeated lines are compressed (as in offset 2c0--400 below)
-3. for big files, piping xd output to less, or head, or tail is advisable.
+ 1. offsets are given in hex
+ 2. repeated lines are compressed (as in offset 2c0--400 below)
+ 3. for big files, piping xd output to less, or head, or tail is advisable.
 
 ---
 
@@ -80,8 +76,7 @@ Sample output below comes from running xd on a binary file
     :
 
 
-Credits
--------
+# Credits
 
 Created by: Bruce Lueckenhoff
 
